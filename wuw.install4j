@@ -39,7 +39,7 @@
       </splashScreen>
       <java mainClass="top.rinoux.wuw.Main" vmParameters="" arguments="" allowVMPassthroughParameters="true" preferredVM="" bundleRuntime="true">
         <classPath>
-          <archive location="target/wuw-3.0-jar-with-dependencies.jar" failOnError="false" />
+          <archive location="wuw-3.0-jar-with-dependencies.jar" failOnError="false" />
         </classPath>
         <nativeLibraryDirectories />
       </java>
@@ -392,6 +392,8 @@
       </autoUpdate>
     </windows>
   </mediaSets>
-  <buildIds buildAll="true" />
+  <buildIds buildAll="false">
+    <mediaSet refId="33" />
+  </buildIds>
   <buildOptions verbose="false" faster="false" disableSigning="false" disableJreBundling="false" debug="false" />
 </install4j>
