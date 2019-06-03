@@ -1,12 +1,7 @@
 package top.rinoux.wuw.controller;
 
-import top.rinoux.CodeUpdateHelper;
-import top.rinoux.GeneralUtils;
-import top.rinoux.config.SettingsManager;
-import top.rinoux.git.arch.GitRepo;
-import top.rinoux.log.LoggerFactory;
-import top.rinoux.profile.Profile;
-import top.rinoux.profile.ProfileHelper;
+import com.jfoenix.controls.JFXProgressBar;
+import com.jfoenix.controls.JFXScrollPane;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
@@ -17,23 +12,30 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import top.rinoux.CodeUpdateHelper;
+import top.rinoux.GeneralUtils;
+import top.rinoux.config.SettingsManager;
+import top.rinoux.git.arch.GitRepo;
+import top.rinoux.log.LoggerFactory;
+import top.rinoux.profile.Profile;
+import top.rinoux.profile.ProfileHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,7 +72,7 @@ public class MainController implements Initializable {
     public TextField repoFilterText;
     public Button fetch;
     public Label logger;
-    public ProgressBar bar;
+    public JFXProgressBar bar;
 
 
     public Button saveProfile;
@@ -94,6 +96,8 @@ public class MainController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         menu.setUseSystemMenuBar(true);
+
+
         // 设置默认值
         if (SettingsManager.getInstance().getOutput() != null) {
             outputValue.setText(SettingsManager.getInstance().getOutput());
@@ -158,7 +162,7 @@ public class MainController implements Initializable {
         selectAll.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                ImageView imageView = (ImageView) selectAll.getChildrenUnmodifiable().get(0);
+                ImageView imageView = (ImageView) selectAll.getChildrenUnmodifiable().get(1);
                 if (!allSelected) {
                     imageView.setImage(asyes);
                 }
@@ -176,7 +180,7 @@ public class MainController implements Initializable {
         selectInvert.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                ImageView imageView = (ImageView) selectInvert.getChildrenUnmodifiable().get(0);
+                ImageView imageView = (ImageView) selectInvert.getChildrenUnmodifiable().get(1);
                 if (invertState == 0) {
                     imageView.setImage(invert1);
                     invertState = 1;
@@ -193,7 +197,7 @@ public class MainController implements Initializable {
                     s.setSelected(!selected);
                 }
 
-                ImageView iv = (ImageView) selectAll.getChildrenUnmodifiable().get(0);
+                ImageView iv = (ImageView) selectAll.getChildrenUnmodifiable().get(1);
                 if (allSelected) {
                     iv.setImage(asno);
                     allSelected = false;
@@ -209,7 +213,7 @@ public class MainController implements Initializable {
             public void handle(ActionEvent actionEvent) {
                 String preferBranch = providedBranches.getValue();
                 for (HBox item : repoListView.getItems()) {
-                    ChoiceBox<String> branchBox = (ChoiceBox<String>) item.getChildren().get(2);
+                    ComboBox<String> branchBox = (ComboBox<String>) item.getChildren().get(2);
                     for (String branchBoxItem : branchBox.getItems()) {
                         if (branchBoxItem.equals(preferBranch)) {
                             branchBox.setValue(preferBranch);
@@ -248,7 +252,7 @@ public class MainController implements Initializable {
                 List<Profile.RepositoryDescription> descriptions = new ArrayList<>();
                 for (HBox item : repoListView.getItems()) {
                     String repoName = ((Label) item.getChildren().get(1)).getText();
-                    String branchName = ((ChoiceBox) item.getChildren().get(2)).getValue().toString();
+                    String branchName = ((ComboBox) item.getChildren().get(2)).getValue().toString();
                     boolean selected = ((CheckBox) item.getChildren().get(3)).isSelected();
                     if (selected) {
                         descriptions.add(new Profile.RepositoryDescription(repoName, branchName));
@@ -337,7 +341,7 @@ public class MainController implements Initializable {
             String repoName = ((Label) item.getChildren().get(1)).getText();
             for (Profile.RepositoryDescription description : descriptions) {
                 if (description.getRepoName().equals(repoName)) {
-                    ((ChoiceBox) item.getChildren().get(2)).setValue(description.getRepoBranch());
+                    ((ComboBox) item.getChildren().get(2)).setValue(description.getRepoBranch());
                     ((CheckBox) item.getChildren().get(3)).setSelected(true);
                     repoListView.getItems().add(item);
                 }
@@ -462,7 +466,7 @@ public class MainController implements Initializable {
 
                         for (Map.Entry<String, String[]> branch : branches.entrySet()) {
                             HBox item = createItemBox(branch.getKey(), branch.getValue());
-                            ChoiceBox<String> branchBox = (ChoiceBox<String>) item.getChildren().get(2);
+                            ComboBox<String> branchBox = (ComboBox<String>) item.getChildren().get(2);
                             ((CheckBox) item.getChildren().get(3)).setSelected(false);
                             String[] repoBranches = branch.getValue();
                             Collections.addAll(branchSet, repoBranches);
@@ -555,7 +559,7 @@ public class MainController implements Initializable {
                     for (int i = 0; i < checkedSize; i++) {
                         HBox g = checkedItems.get(i);
                         String repoName = ((Label) g.getChildren().get(1)).getText();
-                        String branchName = ((ChoiceBox) g.getChildren().get(2)).getValue().toString();
+                        String branchName = ((ComboBox) g.getChildren().get(2)).getValue().toString();
                         if (repositoryMap.containsKey(repoName)) {
                             String href = repositoryMap.get(repoName).getHttpHref();
                             String path = GeneralUtils.pathJoin(output, repoName);
@@ -697,7 +701,7 @@ public class MainController implements Initializable {
         loader.setLocation(MainController.class.getResource("/view/repo_item.fxml"));
         HBox hBox = loader.load();
         Label name = (Label) hBox.getChildren().get(1);
-        ChoiceBox<String> branchBox = (ChoiceBox<String>) hBox.getChildren().get(2);
+        ComboBox<String> branchBox = (ComboBox<String>) hBox.getChildren().get(2);
         CheckBox selected = (CheckBox) hBox.getChildren().get(3);
 
         name.setText(repoName);

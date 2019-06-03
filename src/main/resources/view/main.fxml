@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.image.*?>
-<?import javafx.geometry.*?>
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="top.rinoux.wuw.controller.MainController">
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXProgressBar?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="top.rinoux.wuw.controller.MainController">
    <top>
       <MenuBar fx:id="menu" BorderPane.alignment="CENTER">
         <menus>
@@ -46,49 +54,49 @@
             <RowConstraints maxHeight="26.0" minHeight="8.0" prefHeight="15.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <ProgressBar fx:id="bar" prefHeight="20.0" prefWidth="730.0" progress="0.0" visible="false" GridPane.columnSpan="5" GridPane.rowIndex="8" />
+            <JFXProgressBar fx:id="bar" prefHeight="20.0" prefWidth="730.0" progress="0.0" visible="false" GridPane.columnSpan="5" GridPane.rowIndex="8" />
             <Label text="Project" GridPane.rowIndex="1" />
             <Label prefHeight="17.0" prefWidth="64.0" text="Directory" />
-            <ComboBox fx:id="providedProjects" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <TextField fx:id="outputValue" prefHeight="27.0" prefWidth="322.0" GridPane.columnIndex="1" GridPane.columnSpan="3" />
-            <Button fx:id="selectPath" ellipsisString="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Open" GridPane.columnIndex="4">
+            <JFXComboBox fx:id="providedProjects" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <JFXTextField fx:id="outputValue" prefHeight="27.0" prefWidth="322.0" GridPane.columnIndex="1" GridPane.columnSpan="3" />
+            <JFXButton fx:id="selectPath" ellipsisString="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Open" GridPane.columnIndex="4">
                <graphic>
                   <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" translateX="-5.0">
                      <image>
                         <Image url="@../icons/home.png" />
                      </image>
                   </ImageView>
-               </graphic></Button>
-            <Button fx:id="selectAll" ellipsisString="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Select All" GridPane.columnIndex="3" GridPane.rowIndex="2">
+               </graphic></JFXButton>
+            <JFXButton fx:id="selectAll" ellipsisString="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Select All" GridPane.columnIndex="3" GridPane.rowIndex="2">
                <graphic>
                   <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" translateX="-5.0">
                      <image>
                         <Image url="@../icons/select_all.png" />
                      </image>
                   </ImageView>
-               </graphic></Button>
-            <Button fx:id="selectInvert" ellipsisString="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Unselect" GridPane.columnIndex="4" GridPane.rowIndex="2">
+               </graphic></JFXButton>
+            <JFXButton fx:id="selectInvert" ellipsisString="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Unselect" GridPane.columnIndex="4" GridPane.rowIndex="2">
                <graphic>
                   <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" translateX="-5.0">
                      <image>
                         <Image url="@../icons/invert.png" />
                      </image>
                   </ImageView>
-               </graphic></Button>
-            <ListView fx:id="repoListView" prefHeight="138.0" prefWidth="580.0" GridPane.columnSpan="5" GridPane.rowIndex="3" GridPane.rowSpan="4" />
+               </graphic></JFXButton>
+            <ListView fx:id="repoListView" prefHeight="438.0" prefWidth="580.0" GridPane.columnSpan="5" GridPane.rowIndex="3" GridPane.rowSpan="4" />
             <Label fx:id="logger" maxWidth="1.7976931348623157E308" GridPane.columnSpan="4" GridPane.rowIndex="7" />
-            <Button fx:id="fetch" disable="true" ellipsisString="" maxWidth="1.7976931348623157E308" minHeight="32.0" minWidth="32.0" mnemonicParsing="false" text="Fetch" GridPane.columnIndex="4" GridPane.rowIndex="7">
+            <JFXButton fx:id="fetch" disable="true" ellipsisString="" maxWidth="1.7976931348623157E308" minHeight="32.0" minWidth="32.0" mnemonicParsing="false" text="Fetch" GridPane.columnIndex="4" GridPane.rowIndex="7">
                <graphic>
                   <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" translateX="-5.0">
                      <image>
                         <Image url="@../icons/download_arrow.png" />
                      </image>
                   </ImageView>
-               </graphic></Button>
-            <ComboBox fx:id="providedBranches" prefWidth="150.0" promptText="choose branch" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <TextField fx:id="repoFilterText" promptText="input to filt repo" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-            <ComboBox fx:id="profiles" prefHeight="27.0" prefWidth="170.0" promptText="choose profile" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-            <Button fx:id="saveProfile" ellipsisString="" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" GridPane.columnIndex="4" GridPane.rowIndex="1">
+               </graphic></JFXButton>
+            <JFXComboBox fx:id="providedBranches" prefWidth="150.0" promptText="choose branch" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <JFXTextField fx:id="repoFilterText" promptText="input to filt repo" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+            <JFXComboBox fx:id="profiles" prefHeight="27.0" prefWidth="170.0" promptText="choose profile" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+            <JFXButton fx:id="saveProfile" ellipsisString="" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" GridPane.columnIndex="4" GridPane.rowIndex="1">
                <graphic>
                   <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -96,7 +104,7 @@
                      </image>
                   </ImageView>
                </graphic>
-            </Button>
+            </JFXButton>
             <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="2">
                <GridPane.margin>
                   <Insets left="165.0" />

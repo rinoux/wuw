@@ -8,6 +8,8 @@
 <?import java.lang.*?>
 <?import javafx.scene.image.*?>
 
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXCheckBox?>
 <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="418.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <children>
       <ImageView id="logo" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
@@ -23,15 +25,15 @@
             <Insets bottom="4.0" right="10.0" top="4.0" />
          </HBox.margin>
       </Label>
-      <ChoiceBox id="branches" minHeight="-Infinity" minWidth="-Infinity" prefHeight="27.0" prefWidth="136.0">
+      <JFXComboBox id="branches" minHeight="-Infinity" minWidth="-Infinity" prefHeight="27.0" prefWidth="136.0">
          <HBox.margin>
             <Insets bottom="3.0" right="4.0" top="2.0" />
          </HBox.margin>
-      </ChoiceBox>
-      <CheckBox id="selected" ellipsisString="" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="CheckBox">
+      </JFXComboBox>
+      <JFXCheckBox id="selected" ellipsisString="" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="JFXCheckBox">
          <HBox.margin>
             <Insets bottom="4.0" left="8.0" right="4.0" top="4.0" />
          </HBox.margin>
-      </CheckBox>
+      </JFXCheckBox>
    </children>
 </HBox>

@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import com.jfoenix.controls.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXButton?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="top.rinoux.wuw.controller.ProfileController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="80.0" prefWidth="339.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="top.rinoux.wuw.controller.ProfileController">
    <children>
-      <Label fx:id="labelName" layoutX="15.0" layoutY="11.0" text="Profile name" />
-      <TextField fx:id="profileName" layoutX="75.0" layoutY="5.0" prefHeight="27.0" prefWidth="210.0" />
-      <Button fx:id="saveButton" layoutX="242.0" layoutY="40.0" mnemonicParsing="false" text="Save" />
+      <Label fx:id="labelName" layoutX="15.0" layoutY="19.0" text="Profile name:" />
+      <JFXTextField fx:id="profileName" layoutX="104.0" layoutY="5.0" prefHeight="27.0" prefWidth="210.0" />
+      <JFXButton fx:id="saveButton" layoutX="242.0" layoutY="40.0" mnemonicParsing="false" text="Save" />
    </children>
 </AnchorPane>

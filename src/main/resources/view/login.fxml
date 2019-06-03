@@ -9,6 +9,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXPasswordField?>
 <VBox minHeight="-Infinity" minWidth="-Infinity" prefWidth="400.0" spacing="15.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="top.rinoux.wuw.controller.LoginController">
     <children>
         <HBox alignment="CENTER" prefWidth="200.0">
@@ -20,27 +25,27 @@
                 </ImageView>
             </children>
         </HBox>
-        <TextField fx:id="hostUrlValue" promptText="Host" text="http://cloud.finedevelop.com:2015" />
-        <TextField fx:id="usernameValue" promptText="Username" />
-        <PasswordField fx:id="passwordValue" promptText="Password" />
+        <JFXTextField fx:id="hostUrlValue" promptText="Host" text="http://cloud.finedevelop.com:2015" />
+        <JFXTextField fx:id="usernameValue" promptText="Username" />
+        <JFXPasswordField fx:id="passwordValue" promptText="Password" />
         <HBox prefWidth="200.0" spacing="20.0">
             <children>
-                <ComboBox fx:id="gitType" prefHeight="27.0" prefWidth="113.0" promptText="bitbucket">
+                <JFXComboBox fx:id="gitType" prefHeight="27.0" prefWidth="113.0" promptText="bitbucket">
                <HBox.margin>
                   <Insets />
-               </HBox.margin></ComboBox>
-                <CheckBox fx:id="autoLogin" mnemonicParsing="false" prefHeight="27.0" prefWidth="90.0" selected="true" text="Auto login">
+               </HBox.margin></JFXComboBox>
+                <JFXCheckBox fx:id="autoLogin" mnemonicParsing="false" prefHeight="27.0" prefWidth="90.0" selected="true" text="Auto login">
                <HBox.margin>
                   <Insets left="20.0" />
-               </HBox.margin></CheckBox>
+               </HBox.margin></JFXCheckBox>
             </children>
         </HBox>
         <HBox nodeOrientation="RIGHT_TO_LEFT" prefWidth="200.0" spacing="20.0">
             <children>
-                <Button fx:id="loginBtn" defaultButton="true" mnemonicParsing="false" prefHeight="27.0" prefWidth="240.0" text="Login">
+                <JFXButton fx:id="loginBtn" defaultButton="true" mnemonicParsing="false" prefHeight="27.0" prefWidth="240.0" text="Login">
                <HBox.margin>
                   <Insets />
-               </HBox.margin></Button>
+               </HBox.margin></JFXButton>
             </children>
             <VBox.margin>
                 <Insets />
