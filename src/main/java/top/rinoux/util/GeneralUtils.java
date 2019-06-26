@@ -1,4 +1,4 @@
-package top.rinoux;
+package top.rinoux.util;
 
 
 import top.rinoux.git.tool.Filter;

@@ -1,6 +1,6 @@
 package top.rinoux.git;
 
-import top.rinoux.GeneralUtils;
+import top.rinoux.util.GeneralUtils;
 import top.rinoux.git.service.BitBucketContentService;
 import top.rinoux.git.service.GogsContentService;
 

@@ -1,7 +1,9 @@
-package top.rinoux;
+package top.rinoux.code;
 
+import top.rinoux.util.GeneralUtils;
 import top.rinoux.config.Constants;
 import top.rinoux.config.SettingsManager;
+import top.rinoux.exception.AccountErrorException;
 import top.rinoux.git.GitContentService;
 import top.rinoux.git.ServiceManager;
 import top.rinoux.git.arch.GitBranch;
@@ -60,8 +62,7 @@ public class CodeUpdateHelper {
 
     private static CodeUpdateHelper INSTANCE = null;
 
-
-    public static CodeUpdateHelper getInstance() {
+    public static CodeUpdateHelper getInstance() throws Exception {
         if (INSTANCE == null) {
             CodeUpdateHelper helper = null;
             try {
@@ -74,10 +75,10 @@ public class CodeUpdateHelper {
                 if (helper.validate()) {
                     INSTANCE = helper;
                 } else {
-                    throw new Exception("Wrong git setting!");
+                    throw new AccountErrorException("Error git account setting!");
                 }
             } catch (Exception e) {
-                throw new RuntimeException(e.getMessage());
+                throw e;
             }
 
         }
@@ -85,43 +86,35 @@ public class CodeUpdateHelper {
     }
 
 
-    public File[] cloneOrPullProjects(String... projectNames) {
+    public File[] cloneOrPullProjects(String... projectNames) throws Exception {
         File[] allUpdateDirs = new File[0];
         Set<File> all = new HashSet<File>();
-        try {
-            for (String projectName : projectNames) {
-                GitRepo[] repos = service.getRepos(projectName);
-                for (GitRepo repo : repos) {
-                    File repoRoot = new File("fine-git-repos", projectName);
-                    File[] files = updateLocalRepo(repoRoot, repo);
-                    allUpdateDirs = GeneralUtils.addAll(allUpdateDirs, files);
-                }
-                LoggerFactory.getLogger().info("All projects help " + projectName + " were updated!");
+        for (String projectName : projectNames) {
+            GitRepo[] repos = service.getRepos(projectName);
+            for (GitRepo repo : repos) {
+                File repoRoot = new File("fine-git-repos", projectName);
+                File[] files = updateLocalRepo(repoRoot, repo);
+                allUpdateDirs = GeneralUtils.addAll(allUpdateDirs, files);
             }
-        } catch (Exception e) {
-            LoggerFactory.getLogger().error(e.getMessage(), e);
+            LoggerFactory.getLogger().info("All projects help " + projectName + " were updated!");
         }
-
         Collections.addAll(all, allUpdateDirs);
         return all.toArray(new File[all.size()]);
     }
 
 
-    public File[] cloneOrPullProjects(File dir, String... projectNames) {
+    public File[] cloneOrPullProjects(File dir, String... projectNames) throws Exception {
         File[] allUpdateDirs = new File[0];
         Set<File> all = new HashSet<File>();
-        try {
-            for (String projectName : projectNames) {
-                GitRepo[] repos = service.getRepos(projectName);
-                for (GitRepo repo : repos) {
-                    File repoRoot = new File(dir, projectName);
-                    File[] files = updateLocalRepo(repoRoot, repo);
-                    allUpdateDirs = GeneralUtils.addAll(allUpdateDirs, files);
-                }
-                LoggerFactory.getLogger().info("All projects help " + projectName + " were updated!");
+
+        for (String projectName : projectNames) {
+            GitRepo[] repos = service.getRepos(projectName);
+            for (GitRepo repo : repos) {
+                File repoRoot = new File(dir, projectName);
+                File[] files = updateLocalRepo(repoRoot, repo);
+                allUpdateDirs = GeneralUtils.addAll(allUpdateDirs, files);
             }
-        } catch (Exception e) {
-            LoggerFactory.getLogger().error(e.getMessage(), e);
+            LoggerFactory.getLogger().info("All projects help " + projectName + " were updated!");
         }
 
 
@@ -138,37 +131,33 @@ public class CodeUpdateHelper {
      * @param repos
      * @return 更新的代码所在路径集合
      */
-    public File[] cloneOrPullRepos(File dir, String projectName, String branch, String... repos) {
+    public File[] cloneOrPullRepos(File dir, String projectName, String branch, String... repos) throws Exception {
         Set<File> localDirs = new HashSet<File>();
-        try {
-            List<GitRepo> repositories = new ArrayList<>();
-            Collections.addAll(repositories, service.getRepos(projectName));
+        List<GitRepo> repositories = new ArrayList<>();
+        Collections.addAll(repositories, service.getRepos(projectName));
 
-            for (String repo : repos) {
-                GitRepo currentRepo = null;
-                for (GitRepo repository : repositories) {
-                    if (repository.getRepoName().equals(repo)) {
-                        currentRepo = repository;
-                    }
+        for (String repo : repos) {
+            GitRepo currentRepo = null;
+            for (GitRepo repository : repositories) {
+                if (repository.getRepoName().equals(repo)) {
+                    currentRepo = repository;
                 }
-                GitBranch[] branches = service.getBranches(projectName, repo);
-                for (GitBranch gitBranch : branches) {
-                    File repoFile = new File(dir, gitBranch.getRepoName());
+            }
+            GitBranch[] branches = service.getBranches(projectName, repo);
+            for (GitBranch gitBranch : branches) {
+                File repoFile = new File(dir, gitBranch.getRepoName());
 
-                    localDirs.add(cloneOrPullRepo(currentRepo.getHttpHref(), gitBranch.getDisplayId(), repoFile));
-                }
-
+                localDirs.add(cloneOrPullRepo(currentRepo.getHttpHref(), gitBranch.getDisplayId(), repoFile));
             }
 
-            LoggerFactory.getLogger().info("project " + projectName + " were updated!");
-        } catch (Exception e) {
-            LoggerFactory.getLogger().error(e.getMessage(), e);
         }
+
+        LoggerFactory.getLogger().info("project " + projectName + " were updated!");
         return localDirs.toArray(new File[localDirs.size()]);
     }
 
 
-    public File cloneOrPullRepo(File dir, String projectName, String repoName, String branch) {
+    public File cloneOrPullRepo(File dir, String projectName, String repoName, String branch) throws Exception {
         GitRepo[] repos = getRepos(projectName);
         for (GitRepo repo : repos) {
             if (repo.getRepoName().equals(repoName)) {
@@ -180,52 +169,37 @@ public class CodeUpdateHelper {
     }
 
 
-    public File cloneOrPullRepo(String gitHref, String branch, File dir) {
+    public File cloneOrPullRepo(String gitHref, String branch, File dir) throws Exception {
         return gitTools.cloneOrPull(gitHref, branch, dir);
     }
 
 
-    public void update(File repoDir, String branch) {
+    public void update(File repoDir, String branch) throws Exception {
         gitTools.pull(repoDir.getName(), branch, repoDir);
     }
 
 
-    public String[] getProjects() {
-        try {
-            GitProject[] projects = service.getProjects();
-            String[] projectNames = new String[projects.length];
-            for (int i = 0; i < projects.length; i++) {
-                projectNames[i] = projects[i].getName();
-            }
-            return projectNames;
-        } catch (Exception e) {
-            LoggerFactory.getLogger().error(e.getMessage(), e);
-            return new String[0];
+    public String[] getProjects() throws Exception {
+        GitProject[] projects = service.getProjects();
+        String[] projectNames = new String[projects.length];
+        for (int i = 0; i < projects.length; i++) {
+            projectNames[i] = projects[i].getName();
         }
+        return projectNames;
     }
 
-    public GitRepo[] getRepos(String projectName) {
-        try {
-            return service.getRepos(projectName);
-        } catch (Exception e) {
-            LoggerFactory.getLogger().error(e.getMessage(), e);
-            return new GitRepo[0];
-        }
+    public GitRepo[] getRepos(String projectName) throws Exception {
+        return service.getRepos(projectName);
     }
 
-    public String[] getBranchNames(String projectName, String repoName) {
-        try {
-            GitBranch[] branches = service.getBranches(projectName, repoName);
-            String[] branchNames = new String[branches.length];
-            for (int i = 0; i < branches.length; i++) {
-                branchNames[i] = branches[i].getDisplayId();
-            }
-
-            return branchNames;
-        } catch (Exception e) {
-            LoggerFactory.getLogger().error(e.getMessage(), e);
-            return new String[0];
+    public String[] getBranchNames(String projectName, String repoName) throws Exception {
+        GitBranch[] branches = service.getBranches(projectName, repoName);
+        String[] branchNames = new String[branches.length];
+        for (int i = 0; i < branches.length; i++) {
+            branchNames[i] = branches[i].getDisplayId();
         }
+
+        return branchNames;
     }
 
 
@@ -247,31 +221,27 @@ public class CodeUpdateHelper {
         return this.service.validate();
     }
 
-    private File[] updateLocalRepo(File dir, GitRepo repo) {
-        try {
-            String repoName = repo.getRepoName();
-            String gitHref = repo.getHttpHref();
-            GitBranch[] branches = service.getBranches(repo.getProjectName(), repo.getRepoName());
+    private File[] updateLocalRepo(File dir, GitRepo repo) throws Exception {
+        String repoName = repo.getRepoName();
+        String gitHref = repo.getHttpHref();
+        GitBranch[] branches = service.getBranches(repo.getProjectName(), repo.getRepoName());
 
-            if (GeneralUtils.isNotEmpty(gitHref)) {
-                if (branches != null && branches.length > 0) {
-                    Set<File> localDirs = new HashSet<File>();
-                    for (GitBranch branch : branches) {
-                        //dir-release-10.0
-                        String repoBranchPath = GeneralUtils.pathJoin(dir.getPath(), repo.getRepoName(), branch.getDisplayId().replace('/', '-'));
-                        //File repo = new File(dir, repo.getRepoName().concat("-").concat(branch.replace('/', '-')));
-                        File repoFile = new File(repoBranchPath);
-                        localDirs.add(cloneOrPullRepo(gitHref, branch.getDisplayId(), repoFile));
-                    }
-                    return localDirs.toArray(new File[localDirs.size()]);
+        if (GeneralUtils.isNotEmpty(gitHref)) {
+            if (branches != null && branches.length > 0) {
+                Set<File> localDirs = new HashSet<File>();
+                for (GitBranch branch : branches) {
+                    //dir-release-10.0
+                    String repoBranchPath = GeneralUtils.pathJoin(dir.getPath(), repo.getRepoName(), branch.getDisplayId().replace('/', '-'));
+                    //File repo = new File(dir, repo.getRepoName().concat("-").concat(branch.replace('/', '-')));
+                    File repoFile = new File(repoBranchPath);
+                    localDirs.add(cloneOrPullRepo(gitHref, branch.getDisplayId(), repoFile));
                 }
+                return localDirs.toArray(new File[localDirs.size()]);
             }
-
-
-            LoggerFactory.getLogger().info("No repo url found!");
-        } catch (Exception e) {
-            LoggerFactory.getLogger().error(e.getMessage(), e);
         }
+
+
+        LoggerFactory.getLogger().info("No repo url found!");
         return new File[0];
     }
 
@@ -317,15 +287,15 @@ public class CodeUpdateHelper {
         public CodeUpdateHelper build() throws Exception {
 
             if (GeneralUtils.isEmpty(helper.endpoint)) {
-                throw new NullPointerException("endpoint should not be empty!");
+                throw new AccountErrorException("endpoint should not be empty!");
             }
 
             if (GeneralUtils.isEmpty(helper.username)) {
-                throw new NullPointerException("username should not be empty!");
+                throw new AccountErrorException("username should not be empty!");
             }
 
             if (GeneralUtils.isEmpty(helper.password)) {
-                throw new NullPointerException("password should not be empty!");
+                throw new AccountErrorException("password should not be empty!");
             }
 
             String restUrl = GeneralUtils.pathJoin(helper.endpoint, Constants.REST_API, helper.restVersion);

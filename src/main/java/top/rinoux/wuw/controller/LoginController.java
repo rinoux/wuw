@@ -1,7 +1,7 @@
 package top.rinoux.wuw.controller;
 
-import top.rinoux.CodeUpdateHelper;
-import top.rinoux.GeneralUtils;
+import top.rinoux.code.CodeUpdateHelper;
+import top.rinoux.util.GeneralUtils;
 import top.rinoux.config.SettingsManager;
 import top.rinoux.git.ServiceManager;
 import javafx.concurrent.Service;
@@ -98,7 +98,11 @@ public class LoginController implements Initializable {
     }
 
     private void loadAvatar(String gitType, String host, String username) {
-        avatar.setImage(CodeUpdateHelper.getInstance().getAvatar(gitType, host, username));
+        try {
+            avatar.setImage(CodeUpdateHelper.getInstance().getAvatar(gitType, host, username));
+        } catch (Exception e) {
+            LoggerFactory.getLogger().error(e.getMessage(), e);
+        }
     }
 
     private void loadDefaultAvatar() {

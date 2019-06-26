@@ -1,6 +1,7 @@
 package top.rinoux.git.tool;
 
-import top.rinoux.GeneralUtils;
+import top.rinoux.exception.GitToolsException;
+import top.rinoux.util.GeneralUtils;
 import top.rinoux.log.LoggerFactory;
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
@@ -35,7 +36,7 @@ public class GITTools {
      * @param gitHref  git href
      * @param branch   branch
      */
-    public void clone(String repoName, String gitHref, String branch) {
+    public void clone(String repoName, String gitHref, String branch) throws Exception {
         File target = getGitDir(repoName, branch);
         clone(gitHref, branch, target);
     }
@@ -47,10 +48,11 @@ public class GITTools {
      * @param branch  branch
      * @param dir     local dir
      */
-    public void clone(String gitHref, String branch, File dir) {
+    public void clone(String gitHref, String branch, File dir) throws Exception {
 
         String repoName = getRepoName(gitHref);
         try {
+
             CloneCommand cloneCommand = Git.cloneRepository();
             LoggerFactory.getLogger().info("Cloning " + repoName + "(branch:" + branch + ") to " + dir.getAbsolutePath() + "...");
             cloneCommand
@@ -59,11 +61,9 @@ public class GITTools {
                     .setDirectory(dir)//本地路径
                     .setCredentialsProvider(this.credentials)//验证
                     .call();
-
         } catch (Exception e) {
-            LoggerFactory.getLogger().error("Clone " + gitHref + "(branch:" + branch + ") counter error! \n" + e.getMessage(), e);
+            throw new GitToolsException("Clone " + gitHref + "(branch:" + branch + ") counter error! " + e.getMessage(), e);
         }
-
     }
 
 
@@ -74,7 +74,7 @@ public class GITTools {
      * @param branch   分支
      * @param dir      本地目录
      */
-    public void pull(String repoName, String branch, File dir) {
+    public void pull(String repoName, String branch, File dir) throws Exception {
         try {
             Git git = new Git(new FileRepository(new File(dir, ".git")));
             LoggerFactory.getLogger().info("Pulling " + repoName + "(branch:" + branch + ")...");
@@ -82,10 +82,10 @@ public class GITTools {
                     .setRemoteBranchName(branch)
                     .setCredentialsProvider(this.credentials)
                     .call();
-
         } catch (Exception e) {
-            LoggerFactory.getLogger().error("Pull " + repoName + "(branch:" + branch + ") counter error! \n" + e.getMessage(), e);
+            throw new GitToolsException("Pull " + repoName + "(branch:" + branch + ") counter error! " + e.getMessage(), e);
         }
+
 
     }
 
@@ -95,22 +95,22 @@ public class GITTools {
      * @param repoName repo
      * @param dir      local dir
      */
-    public void pull(String repoName, File dir) {
+    public void pull(String repoName, File dir) throws Exception {
         try {
+
             Git git = new Git(new FileRepository(dir));
             LoggerFactory.getLogger().info("Pulling " + repoName + "...");
             git.pull()
                     .setCredentialsProvider(this.credentials)
                     .call();
-
         } catch (Exception e) {
-            LoggerFactory.getLogger().error("Pull " + repoName + " counter error! \n" + e.getMessage(), e);
+            throw new GitToolsException("Pull " + repoName + " counter error! " + e.getMessage(), e);
 
         }
     }
 
 
-    public File cloneOrPull(String gitHref, String branch, File dir) {
+    public File cloneOrPull(String gitHref, String branch, File dir) throws Exception {
         String repoName = getRepoName(gitHref);
         if (GeneralUtils.isNotEmpty(gitHref)) {
             if (GeneralUtils.isEmpty(branch)) {

@@ -1,6 +1,6 @@
 package top.rinoux.config;
 
-import top.rinoux.GeneralUtils;
+import top.rinoux.util.GeneralUtils;
 import org.json.JSONObject;
 import top.rinoux.log.LoggerFactory;
 

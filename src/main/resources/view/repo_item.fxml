@@ -10,7 +10,8 @@
 
 <?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXCheckBox?>
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="418.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="32.0"
+      prefWidth="418.0" xmlns="http://javafx.com/javafx/8">
    <children>
       <ImageView id="logo" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
          <image>

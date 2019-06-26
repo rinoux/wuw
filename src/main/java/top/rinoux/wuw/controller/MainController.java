@@ -1,7 +1,6 @@
 package top.rinoux.wuw.controller;
 
 import com.jfoenix.controls.JFXProgressBar;
-import com.jfoenix.controls.JFXScrollPane;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
@@ -12,7 +11,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -26,16 +24,16 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import top.rinoux.CodeUpdateHelper;
-import top.rinoux.GeneralUtils;
+import top.rinoux.code.CodeUpdateHelper;
 import top.rinoux.config.SettingsManager;
+import top.rinoux.exception.AccountErrorException;
 import top.rinoux.git.arch.GitRepo;
 import top.rinoux.log.LoggerFactory;
 import top.rinoux.profile.Profile;
 import top.rinoux.profile.ProfileHelper;
+import top.rinoux.util.GeneralUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +44,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -248,7 +247,6 @@ public class MainController implements Initializable {
             @Override
             public void handle(ActionEvent actionEvent) {
                 Stage stage = showSaveProfileDialog();
-                ProfileController.setCurrentInstance(stage);
                 List<Profile.RepositoryDescription> descriptions = new ArrayList<>();
                 for (HBox item : repoListView.getItems()) {
                     String repoName = ((Label) item.getChildren().get(1)).getText();
@@ -270,17 +268,26 @@ public class MainController implements Initializable {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 profiles.getItems().clear();
-                profiles.getItems().addAll(ProfileHelper.getProfileNames());
+
+                for (String profileName : ProfileHelper.getProfileNames()) {
+                        /*HBox hBox = createProfileItemBox(profileName);
+                        profiles.getItems().add(hBox);*/
+
+                    profiles.getItems().add(profileName);
+                }
             }
         });
-        profiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+
+       /* profiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<HBox>() {
             @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (GeneralUtils.isNotEmpty(t1)) {
-                    Profile profile = ProfileHelper.readProfile(t1);
+            public void changed(ObservableValue<? extends HBox> observableValue, HBox hBox, HBox t1) {
+                String name = ((Label) t1.getChildren().get(0)).getText();
+                if (GeneralUtils.isNotEmpty(name)) {
+                    Profile profile = ProfileHelper.readProfile(name);
                     repoListView.getItems().clear();
 
                     providedProjects.setValue(profile.getProjectName());
+                    profiles.setPromptText(name);
 
                     try {
                         while (true) {
@@ -297,6 +304,31 @@ public class MainController implements Initializable {
                 repoFilterText.clear();
             }
         });
+*/
+       profiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+           @Override
+           public void changed(ObservableValue<? extends String> observableValue, String s, String name) {
+               if (GeneralUtils.isNotEmpty(name)) {
+                   Profile profile = ProfileHelper.readProfile(name);
+                   repoListView.getItems().clear();
+
+                   providedProjects.setValue(profile.getProjectName());
+
+                   try {
+                       while (true) {
+                           Thread.sleep(1000);
+                           if (loadingReposCompleted) {
+                               filterReposByProfile(profile);
+                               break;
+                           }
+                       }
+                   } catch (InterruptedException e) {
+                       LoggerFactory.getLogger().error(e.getMessage(), e);
+                   }
+               }
+               repoFilterText.clear();
+           }
+       });
 
         // 账户监听
         SettingsManager.getInstance().addAccountListener(() -> {
@@ -318,13 +350,17 @@ public class MainController implements Initializable {
      * 过滤
      */
     private void filterReposByProfile() {
-        String profileName = profiles.getSelectionModel().getSelectedItem();
-        if (profileName != null) {
-            Profile profile = ProfileHelper.readProfile(profileName);
-            if (profile != null) {
-                filterReposByProfile(profile);
+        if (profiles.getSelectionModel().getSelectedItem() != null) {
+            //String profileName = ((Label) profiles.getSelectionModel().getSelectedItem().getChildren().get(0)).getText();
+            String profileName = profiles.getSelectionModel().getSelectedItem();
+            if (profileName != null) {
+                Profile profile = ProfileHelper.readProfile(profileName);
+                if (profile != null) {
+                    filterReposByProfile(profile);
+                }
             }
         }
+
     }
 
 
@@ -364,7 +400,7 @@ public class MainController implements Initializable {
     private Service<String[]> loadProjectsService = new Service<String[]>() {
         @Override
         protected Task<String[]> createTask() {
-            return new Task<String[]>() {
+            return new AuthenticatedTask<String[]>() {
                 @Override
                 protected void succeeded() {
                     try {
@@ -451,7 +487,7 @@ public class MainController implements Initializable {
     private Service<Map<String, String[]>> loadBranchesService = new Service<Map<String, String[]>>() {
         @Override
         protected Task<Map<String, String[]>> createTask() {
-            return new Task<Map<String, String[]>>() {
+            return new AuthenticatedTask<Map<String, String[]>>() {
                 @Override
                 protected void succeeded() {
                     try {
@@ -494,7 +530,7 @@ public class MainController implements Initializable {
                 }
 
                 @Override
-                protected Map<String, String[]> call() throws IOException {
+                protected Map<String, String[]> call() throws Exception {
                     try {
                         saveProfile.setDisable(true);
 
@@ -532,7 +568,7 @@ public class MainController implements Initializable {
     private Service<Void> cloneService = new Service<Void>() {
         @Override
         protected Task<Void> createTask() {
-            return new Task<Void>() {
+            return new AuthenticatedTask<Void>() {
 
                 @Override
                 protected void succeeded() {
@@ -541,7 +577,7 @@ public class MainController implements Initializable {
                 }
 
                 @Override
-                protected Void call() throws IOException {
+                protected Void call() throws Exception {
                     String project = providedProjects.getValue();
                     String output = outputValue.getText();
 
@@ -556,6 +592,7 @@ public class MainController implements Initializable {
                         }
                     }
                     int checkedSize = checkedItems.size();
+                    List<Exception> exceptions = new LinkedList<>();
                     for (int i = 0; i < checkedSize; i++) {
                         HBox g = checkedItems.get(i);
                         String repoName = ((Label) g.getChildren().get(1)).getText();
@@ -564,14 +601,31 @@ public class MainController implements Initializable {
                             String href = repositoryMap.get(repoName).getHttpHref();
                             String path = GeneralUtils.pathJoin(output, repoName);
                             updateMessage("Fethcing code of " + repoName + "...");
-                            CodeUpdateHelper.getInstance().cloneOrPullRepo(href, branchName, new File(path));
+
+                            try {
+                                CodeUpdateHelper.getInstance().cloneOrPullRepo(href, branchName, new File(path));
+                            } catch (Exception e) {
+                                exceptions.add(e);
+                            }
                             updateProgress(i + 1, checkedSize);
                         } else {
                             break;
                         }
 
                     }
-                    updateMessage("Code fetch done!");
+
+                    if (exceptions.isEmpty()) {
+                        updateMessage("Code fetch done!");
+                    } else {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Code fetch done with error:\n");
+                        for (Exception exception : exceptions) {
+                            sb.append(exception.getMessage()).append("\n");
+                        }
+
+                        updateMessage(sb.toString());
+                    }
+
                     return null;
                 }
             };
@@ -584,7 +638,7 @@ public class MainController implements Initializable {
     private Service<Void> pullService = new Service<Void>() {
         @Override
         protected Task<Void> createTask() {
-            return new Task<Void>() {
+            return new AuthenticatedTask<Void>() {
 
                 @Override
                 protected void succeeded() {
@@ -595,7 +649,7 @@ public class MainController implements Initializable {
                 }
 
                 @Override
-                protected Void call() throws IOException {
+                protected Void call() throws Exception {
                     String branch = providedBranches.getValue();
                     String output = outputValue.getText();
                     bar.setProgress(0);
@@ -655,6 +709,7 @@ public class MainController implements Initializable {
             stage.setAlwaysOnTop(true);
             stage.show();
 
+            ProfileController.setCurrent(stage);
             return stage;
         } catch (IOException e) {
             LoggerFactory.getLogger().error(e.getMessage(), e);
@@ -671,17 +726,21 @@ public class MainController implements Initializable {
      */
     private String[] getProjects() {
         List<String> prjs = new ArrayList<>();
-        String[] projects = CodeUpdateHelper.getInstance().getProjects();
-        if (projects.length > 0) {
-            Collections.addAll(prjs, projects);
-            prjs.sort(new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    return o1.compareTo(o2);
-                }
-            });
+        try {
+            String[] projects = CodeUpdateHelper.getInstance().getProjects();
+            if (projects.length > 0) {
+                Collections.addAll(prjs, projects);
+                prjs.sort(new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o1.compareTo(o2);
+                    }
+                });
 
-            prjs.add(0, "~" + SettingsManager.getInstance().getUsername());
+                prjs.add(0, "~" + SettingsManager.getInstance().getUsername());
+            }
+        } catch (Exception e) {
+            LoggerFactory.getLogger().error(e.getMessage(), e);
         }
 
         return prjs.toArray(new String[0]);
@@ -708,6 +767,41 @@ public class MainController implements Initializable {
         branchBox.getItems().addAll(branches);
         selected.setSelected(true);
         return hBox;
+    }
+
+    private HBox createProfileItemBox(final String pofileName) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(MainController.class.getResource("/view/profile_item.fxml"));
+        HBox hBox = loader.load();
+
+        Label name = (Label) hBox.getChildren().get(0);
+        name.setText(pofileName);
+        hBox.setAccessibleText(pofileName);
+
+        Button delete = ((Button) hBox.getChildren().get(1));
+
+        delete.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+
+                System.out.println("xxxx");
+                ProfileHelper.removeProfile(pofileName);
+            }
+        });
+
+        return hBox;
+    }
+
+
+    private abstract class AuthenticatedTask<T> extends Task<T> {
+
+        @Override
+        protected void failed() {
+
+            if (getException() instanceof AccountErrorException) {
+                showLoginDialog();
+            }
+        }
     }
 
 }

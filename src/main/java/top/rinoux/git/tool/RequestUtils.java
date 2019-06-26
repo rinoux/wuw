@@ -38,11 +38,12 @@ public class RequestUtils {
             httpURLConnection.setRequestProperty("Content-Type", "application/json");
             httpURLConnection.setRequestProperty("Authorization", "Basic " + encode);
 
+            httpURLConnection.setConnectTimeout(10000);
             InputStream is = httpURLConnection.getInputStream();
 
             InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
             BufferedReader reader = new BufferedReader(isReader);
-            String line = null;
+            String line;
 
             while ((line = reader.readLine()) != null) {
                 sb.append(line);

@@ -16,17 +16,13 @@ import java.util.ResourceBundle;
  * Created by rinoux on 2019-02-19.
  */
 public class ProfileController implements Initializable {
-    public static Stage currentInstance;
+    private static Stage current;
     public TextField profileName;
     public Button saveButton;
 
 
-    public static Stage getCurrentInstance() {
-        return currentInstance;
-    }
-
-    public static void setCurrentInstance(Stage currentInstance) {
-        ProfileController.currentInstance = currentInstance;
+    static void setCurrent(Stage currentInstance) {
+        current = currentInstance;
     }
 
     @Override
@@ -40,17 +36,7 @@ public class ProfileController implements Initializable {
                 if (name != null) {
                     ProfileHelper.saveProfile(name);
                 }
-
-                getCurrentInstance().close();
-
-            }
-        });
-
-
-        saveButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent mouseEvent) {
-
+                current.close();
             }
         });
     }
