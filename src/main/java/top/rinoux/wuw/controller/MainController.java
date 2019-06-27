@@ -1,7 +1,5 @@
 package top.rinoux.wuw.controller;
 
-import com.jfoenix.controls.JFXProgressBar;
-import com.jfoenix.controls.JFXScrollPane;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Service;
@@ -12,7 +10,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -21,21 +18,23 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuBar;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import top.rinoux.CodeUpdateHelper;
-import top.rinoux.GeneralUtils;
+import top.rinoux.code.CodeUpdateHelper;
 import top.rinoux.config.SettingsManager;
+import top.rinoux.exception.AccountErrorException;
 import top.rinoux.git.arch.GitRepo;
 import top.rinoux.log.LoggerFactory;
 import top.rinoux.profile.Profile;
 import top.rinoux.profile.ProfileHelper;
+import top.rinoux.util.GeneralUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +45,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -71,8 +71,8 @@ public class MainController implements Initializable {
     public ComboBox<String> providedBranches;
     public TextField repoFilterText;
     public Button fetch;
-    public Label logger;
-    public JFXProgressBar bar;
+    public TextArea logger;
+    public ProgressBar bar;
 
 
     public Button saveProfile;
@@ -162,7 +162,7 @@ public class MainController implements Initializable {
         selectAll.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                ImageView imageView = (ImageView) selectAll.getChildrenUnmodifiable().get(1);
+                ImageView imageView = (ImageView) selectAll.getChildrenUnmodifiable().get(0);
                 if (!allSelected) {
                     imageView.setImage(asyes);
                 }
@@ -180,7 +180,7 @@ public class MainController implements Initializable {
         selectInvert.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                ImageView imageView = (ImageView) selectInvert.getChildrenUnmodifiable().get(1);
+                ImageView imageView = (ImageView) selectInvert.getChildrenUnmodifiable().get(0);
                 if (invertState == 0) {
                     imageView.setImage(invert1);
                     invertState = 1;
@@ -197,7 +197,7 @@ public class MainController implements Initializable {
                     s.setSelected(!selected);
                 }
 
-                ImageView iv = (ImageView) selectAll.getChildrenUnmodifiable().get(1);
+                ImageView iv = (ImageView) selectAll.getChildrenUnmodifiable().get(0);
                 if (allSelected) {
                     iv.setImage(asno);
                     allSelected = false;
@@ -273,11 +273,12 @@ public class MainController implements Initializable {
                 profiles.getItems().addAll(ProfileHelper.getProfileNames());
             }
         });
+
         profiles.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
             @Override
-            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                if (GeneralUtils.isNotEmpty(t1)) {
-                    Profile profile = ProfileHelper.readProfile(t1);
+            public void changed(ObservableValue<? extends String> observableValue, String s, String name) {
+                if (GeneralUtils.isNotEmpty(name)) {
+                    Profile profile = ProfileHelper.readProfile(name);
                     repoListView.getItems().clear();
 
                     providedProjects.setValue(profile.getProjectName());
@@ -495,7 +496,9 @@ public class MainController implements Initializable {
 
                 @Override
                 protected Map<String, String[]> call() throws IOException {
+                    Map<String, String[]> bran = new LinkedHashMap<>(repositoryMap.size());
                     try {
+
                         saveProfile.setDisable(true);
 
                         int count = 0;
@@ -504,7 +507,7 @@ public class MainController implements Initializable {
                         for (GitRepo repo : CodeUpdateHelper.getInstance().getRepos(project)) {
                             repositoryMap.put(repo.getRepoName(), repo);
                         }
-                        Map<String, String[]> bran = new LinkedHashMap<>(repositoryMap.size());
+
 
                         for (Map.Entry<String, GitRepo> entry : repositoryMap.entrySet()) {
                             String name = entry.getKey();
@@ -516,10 +519,12 @@ public class MainController implements Initializable {
                         }
 
                         saveProfile.setDisable(false);
-                        return bran;
-                    } finally {
 
+                    } catch (Exception e) {
+                        updateMessage(e.getMessage());
                     }
+
+                    return bran;
                 }
             };
         }
@@ -532,7 +537,7 @@ public class MainController implements Initializable {
     private Service<Void> cloneService = new Service<Void>() {
         @Override
         protected Task<Void> createTask() {
-            return new Task<Void>() {
+            return new AuthenticatedTask<Void>() {
 
                 @Override
                 protected void succeeded() {
@@ -541,7 +546,7 @@ public class MainController implements Initializable {
                 }
 
                 @Override
-                protected Void call() throws IOException {
+                protected Void call() throws Exception {
                     String project = providedProjects.getValue();
                     String output = outputValue.getText();
 
@@ -556,6 +561,7 @@ public class MainController implements Initializable {
                         }
                     }
                     int checkedSize = checkedItems.size();
+                    List<Exception> exceptions = new LinkedList<>();
                     for (int i = 0; i < checkedSize; i++) {
                         HBox g = checkedItems.get(i);
                         String repoName = ((Label) g.getChildren().get(1)).getText();
@@ -564,14 +570,31 @@ public class MainController implements Initializable {
                             String href = repositoryMap.get(repoName).getHttpHref();
                             String path = GeneralUtils.pathJoin(output, repoName);
                             updateMessage("Fethcing code of " + repoName + "...");
-                            CodeUpdateHelper.getInstance().cloneOrPullRepo(href, branchName, new File(path));
+
+                            try {
+                                CodeUpdateHelper.getInstance().cloneOrPullRepo(href, branchName, new File(path));
+                            } catch (Exception e) {
+                                exceptions.add(e);
+                            }
                             updateProgress(i + 1, checkedSize);
                         } else {
                             break;
                         }
 
                     }
-                    updateMessage("Code fetch done!");
+
+                    if (exceptions.isEmpty()) {
+                        updateMessage("Code fetch done!");
+                    } else {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Code fetch done with error:\n");
+                        for (Exception exception : exceptions) {
+                            sb.append(exception.getMessage()).append("\n");
+                        }
+
+                        updateMessage(sb.toString());
+                    }
+
                     return null;
                 }
             };
@@ -604,11 +627,15 @@ public class MainController implements Initializable {
                     if (fs == null) {
                         return null;
                     }
-                    for (int i = 0; i < fs.length; i++) {
-                        final File repo = fs[i];
-                        updateMessage("Update code of " + repo.getName() + "...");
-                        CodeUpdateHelper.getInstance().update(repo, branch);
-                        updateProgress(i + 1, fs.length);
+                    try {
+                        for (int i = 0; i < fs.length; i++) {
+                            final File repo = fs[i];
+                            updateMessage("Update code of " + repo.getName() + "...");
+                            CodeUpdateHelper.getInstance().update(repo, branch);
+                            updateProgress(i + 1, fs.length);
+                        }
+                    } catch (Exception e) {
+                        updateMessage(e.getMessage());
                     }
                     updateMessage("Done!");
                     return null;
@@ -671,17 +698,21 @@ public class MainController implements Initializable {
      */
     private String[] getProjects() {
         List<String> prjs = new ArrayList<>();
-        String[] projects = CodeUpdateHelper.getInstance().getProjects();
-        if (projects.length > 0) {
-            Collections.addAll(prjs, projects);
-            prjs.sort(new Comparator<String>() {
-                @Override
-                public int compare(String o1, String o2) {
-                    return o1.compareTo(o2);
-                }
-            });
+        try {
+            String[] projects = CodeUpdateHelper.getInstance().getProjects();
+            if (projects.length > 0) {
+                Collections.addAll(prjs, projects);
+                prjs.sort(new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o1.compareTo(o2);
+                    }
+                });
 
-            prjs.add(0, "~" + SettingsManager.getInstance().getUsername());
+                prjs.add(0, "~" + SettingsManager.getInstance().getUsername());
+            }
+        } catch (Exception e) {
+            logger.setText(e.getMessage());
         }
 
         return prjs.toArray(new String[0]);
@@ -710,4 +741,14 @@ public class MainController implements Initializable {
         return hBox;
     }
 
+    private abstract class AuthenticatedTask<T> extends Task<T> {
+
+        @Override
+        protected void failed() {
+
+            if (getException() instanceof AccountErrorException) {
+                showLoginDialog();
+            }
+        }
+    }
 }

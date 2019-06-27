@@ -2,7 +2,7 @@ package top.rinoux.profile;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import top.rinoux.GeneralUtils;
+import top.rinoux.util.GeneralUtils;
 import top.rinoux.git.tool.Filter;
 import top.rinoux.log.LoggerFactory;
 

@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import java.lang.*?>
-<?import javafx.scene.image.*?>
-
-<?import com.jfoenix.controls.JFXComboBox?>
-<?import com.jfoenix.controls.JFXCheckBox?>
-<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="32.0" prefWidth="418.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-   <children>
-      <ImageView id="logo" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../img/bitbucket.png" />
-         </image>
-         <HBox.margin>
-            <Insets bottom="4.0" left="4.0" right="10.0" top="4.0" />
-         </HBox.margin>
-      </ImageView>
-      <Label id="repoName" minHeight="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="214.0" text="Label">
-         <HBox.margin>
-            <Insets bottom="4.0" right="10.0" top="4.0" />
-         </HBox.margin>
-      </Label>
-      <JFXComboBox id="branches" minHeight="-Infinity" minWidth="-Infinity" prefHeight="27.0" prefWidth="136.0">
-         <HBox.margin>
-            <Insets bottom="3.0" right="4.0" top="2.0" />
-         </HBox.margin>
-      </JFXComboBox>
-      <JFXCheckBox id="selected" ellipsisString="" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="JFXCheckBox">
-         <HBox.margin>
-            <Insets bottom="4.0" left="8.0" right="4.0" top="4.0" />
-         </HBox.margin>
-      </JFXCheckBox>
-   </children>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="32.0"
+      prefWidth="418.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <ImageView id="logo" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">
+            <image>
+                <Image url="@../img/bitbucket.png"/>
+            </image>
+            <HBox.margin>
+                <Insets bottom="4.0" left="4.0" right="10.0" top="4.0"/>
+            </HBox.margin>
+        </ImageView>
+        <Label id="repoName" minHeight="-Infinity" minWidth="-Infinity" prefHeight="24.0" prefWidth="214.0"
+               text="Label">
+            <HBox.margin>
+                <Insets bottom="4.0" right="10.0" top="4.0"/>
+            </HBox.margin>
+        </Label>
+        <ComboBox id="branches" minHeight="-Infinity" minWidth="-Infinity" prefHeight="27.0" prefWidth="136.0">
+            <HBox.margin>
+                <Insets bottom="3.0" right="4.0" top="2.0"/>
+            </HBox.margin>
+        </ComboBox>
+        <CheckBox id="selected" ellipsisString="" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0"
+                  text="CheckBox">
+            <HBox.margin>
+                <Insets bottom="4.0" left="8.0" right="4.0" top="4.0"/>
+            </HBox.margin>
+        </CheckBox>
+    </children>
 </HBox>

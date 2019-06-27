@@ -1,7 +1,7 @@
 package top.rinoux.git.service;
 
 
-import top.rinoux.GeneralUtils;
+import top.rinoux.util.GeneralUtils;
 import top.rinoux.config.Constants;
 import top.rinoux.git.GitContentService;
 import top.rinoux.git.arch.GitBranch;

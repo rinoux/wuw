@@ -1,6 +1,6 @@
 package top.rinoux.git.service;
 
-import top.rinoux.GeneralUtils;
+import top.rinoux.util.GeneralUtils;
 import top.rinoux.config.Constants;
 import top.rinoux.git.GitContentService;
 import top.rinoux.git.arch.GitBranch;
@@ -9,7 +9,6 @@ import top.rinoux.git.arch.GitRepo;
 import top.rinoux.git.tool.RequestUtils;
 import javafx.scene.image.Image;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import top.rinoux.log.LoggerFactory;
 
@@ -157,7 +156,7 @@ public class BitBucketContentService implements GitContentService {
             String url = GeneralUtils.pathJoin(restEndPoint, Constants.USERS, username);
             String rs = RequestUtils.request(username, password, url);
             return GeneralUtils.isNotEmpty(rs) && !new JSONObject(rs).has("errors");
-        } catch (JSONException e) {
+        } catch (Exception e) {
             LoggerFactory.getLogger().error(e.getMessage(), e);
             return false;
         }
