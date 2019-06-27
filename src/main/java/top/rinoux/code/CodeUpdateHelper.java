@@ -11,7 +11,6 @@ import top.rinoux.git.arch.GitProject;
 import top.rinoux.git.arch.GitRepo;
 import top.rinoux.git.tool.GITTools;
 import top.rinoux.log.LoggerFactory;
-import javafx.scene.image.Image;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 import java.io.File;
@@ -60,10 +59,10 @@ public class CodeUpdateHelper {
     private GitContentService service;
     private GITTools gitTools;
 
-    private static CodeUpdateHelper INSTANCE = null;
+    private static CodeUpdateHelper current = null;
 
-    public static CodeUpdateHelper getInstance() throws Exception {
-        if (INSTANCE == null) {
+    public static CodeUpdateHelper getCurrent() throws Exception {
+        if (current == null) {
             CodeUpdateHelper helper = null;
             try {
                 helper = CodeUpdateHelper.newBuilder()
@@ -73,7 +72,7 @@ public class CodeUpdateHelper {
                         .setPassword(SettingsManager.getInstance().getPassword())
                         .build();
                 if (helper.validate()) {
-                    INSTANCE = helper;
+                    current = helper;
                 } else {
                     throw new AccountErrorException("Error git account setting!");
                 }
@@ -82,9 +81,13 @@ public class CodeUpdateHelper {
             }
 
         }
-        return INSTANCE;
+        return current;
     }
 
+
+    public static void setCurrent(CodeUpdateHelper current) {
+        CodeUpdateHelper.current = current;
+    }
 
     public File[] cloneOrPullProjects(String... projectNames) throws Exception {
         File[] allUpdateDirs = new File[0];
@@ -203,22 +206,19 @@ public class CodeUpdateHelper {
     }
 
 
-    public Image getAvatar() {
+    public String getAvatar() {
         return this.service.loadAvatar();
     }
 
 
-    public Image getAvatar(String gitType, String host, String username) {
-        try {
-            return ServiceManager.createService(gitType, host, username, null).loadAvatar();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
 
     public boolean validate() {
         return this.service.validate();
+    }
+
+
+    public String getDefaultProject() {
+        return this.service.getDefaultProject();
     }
 
     private File[] updateLocalRepo(File dir, GitRepo repo) throws Exception {

@@ -26,14 +26,14 @@
    <top>
       <MenuBar fx:id="menu" BorderPane.alignment="CENTER">
         <menus>
-          <Menu mnemonicParsing="false" text="Account">
+          <Menu mnemonicParsing="false" text="账户">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#changeAccount" text="Change account" />
+              <MenuItem mnemonicParsing="false" onAction="#changeAccount" text="切换账户" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Help">
+          <Menu mnemonicParsing="false" text="帮助">
             <items>
-              <MenuItem mnemonicParsing="false" text="About" />
+              <MenuItem mnemonicParsing="false" text="关于" />
             </items>
           </Menu>
         </menus>
@@ -61,11 +61,11 @@
         </rowConstraints>
          <children>
             <ProgressBar fx:id="bar" prefHeight="20.0" prefWidth="730.0" progress="0.0" visible="false" GridPane.columnSpan="5" GridPane.rowIndex="8" />
-            <Label text="Project" GridPane.rowIndex="1" />
-            <Label prefHeight="17.0" prefWidth="64.0" text="Directory" />
+            <Label text="工程/分类" GridPane.rowIndex="1" />
+            <Label prefHeight="17.0" prefWidth="64.0" text="下载路径" />
             <ComboBox fx:id="providedProjects" maxWidth="1.7976931348623157E308" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <TextField fx:id="outputValue" prefHeight="27.0" prefWidth="322.0" GridPane.columnIndex="1" GridPane.columnSpan="3" />
-            <Button fx:id="selectPath" ellipsisString="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="Open" GridPane.columnIndex="4">
+            <Button fx:id="selectPath" ellipsisString="" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" text="打开" GridPane.columnIndex="4">
                <graphic>
                   <ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true" preserveRatio="true" translateX="-5.0">
                      <image>
@@ -99,9 +99,9 @@
                      </image>
                   </ImageView>
                </graphic></Button>
-            <ComboBox fx:id="providedBranches" prefWidth="150.0" promptText="choose branch" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <TextField fx:id="repoFilterText" promptText="input to filt repo" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-            <ComboBox fx:id="profiles" prefHeight="27.0" prefWidth="170.0" promptText="choose profile" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="1" />
+            <ComboBox fx:id="providedBranches" prefWidth="150.0" promptText="分支" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <TextField fx:id="repoFilterText" promptText="按关键字查找" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+            <ComboBox fx:id="profiles" prefHeight="27.0" prefWidth="170.0" promptText="仓库组" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="1" />
             <Button fx:id="saveProfile" ellipsisString="" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" GridPane.columnIndex="4" GridPane.rowIndex="1">
                <graphic>
                   <ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true">

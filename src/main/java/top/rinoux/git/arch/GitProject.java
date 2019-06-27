@@ -68,4 +68,33 @@ public class GitProject {
     public void setType(GitRepo.Type type) {
         this.type = type;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GitProject)) return false;
+
+        GitProject that = (GitProject) o;
+
+        if (isPub() != that.isPub()) return false;
+        if (!getId().equals(that.getId())) return false;
+        if (getKey() != null ? !getKey().equals(that.getKey()) : that.getKey() != null) return false;
+        if (!getName().equals(that.getName())) return false;
+        if (getHref() != null ? !getHref().equals(that.getHref()) : that.getHref() != null) return false;
+        if (getDescription() != null ? !getDescription().equals(that.getDescription()) : that.getDescription() != null)
+            return false;
+        return getType() == that.getType();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId().hashCode();
+        result = 31 * result + (getKey() != null ? getKey().hashCode() : 0);
+        result = 31 * result + getName().hashCode();
+        result = 31 * result + (getHref() != null ? getHref().hashCode() : 0);
+        result = 31 * result + (getDescription() != null ? getDescription().hashCode() : 0);
+        result = 31 * result + (isPub() ? 1 : 0);
+        result = 31 * result + (getType() != null ? getType().hashCode() : 0);
+        return result;
+    }
 }

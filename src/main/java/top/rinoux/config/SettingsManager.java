@@ -28,6 +28,7 @@ public class SettingsManager {
     private String username;
     private String password;
     private String protocol = "http";
+    private String avatarUrl;
 
     /**
      * auto login
@@ -103,6 +104,14 @@ public class SettingsManager {
         }
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     public String getGitType() {
         return gitType;
     }
@@ -165,7 +174,8 @@ public class SettingsManager {
                         .put("username", username)
                         .put("password", Base64.getEncoder().encodeToString(password.getBytes()))
                         .put("protocol", protocol)
-                        .put("restVersion", restVersion));
+                        .put("restVersion", restVersion))
+                        .put("avatarUrl", avatarUrl);
             }
             object.put("target", new JSONObject()
                     .put("project", project)
@@ -202,6 +212,7 @@ public class SettingsManager {
                     setPassword(new String(Base64.getDecoder().decode(connection.getString("password"))));
                     setProtocol(connection.getString("protocol"));
                     setRestVersion(connection.getString("restVersion"));
+                    setAvatarUrl(connection.optString("avatarUrl", "/img/avatar.png"));
                 }
                 if (settings.has("target")) {
                     JSONObject target = settings.getJSONObject("target");

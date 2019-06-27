@@ -1,5 +1,6 @@
 package top.rinoux.git;
 
+import top.rinoux.git.service.GitHubContentService;
 import top.rinoux.util.GeneralUtils;
 import top.rinoux.git.service.BitBucketContentService;
 import top.rinoux.git.service.GogsContentService;
@@ -16,6 +17,8 @@ public class ServiceManager {
         } else if (gitServerType.equalsIgnoreCase("gogs")) {
             restEndpoint = GeneralUtils.pathJoin(restEndpoint, "api", "v1");
             return new GogsContentService(restEndpoint, username, password);
+        } else if (gitServerType.equalsIgnoreCase("github")) {
+            return new GitHubContentService(username, password);
         }
 
 
@@ -27,6 +30,7 @@ public class ServiceManager {
         return new String[]{
                 "bitbucket",
                 "gogs",
+                "github"
         };
     }
 }

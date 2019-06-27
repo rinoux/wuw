@@ -25,6 +25,7 @@ public class BitBucketContentService implements GitContentService {
     private String username;
     private String password;
 
+
     public BitBucketContentService(String restEndPoint, String username, String password) {
         this.restEndPoint = restEndPoint;
         this.username = username;
@@ -119,6 +120,7 @@ public class BitBucketContentService implements GitContentService {
                 "?limit=" + LIMIT);
         String rs = RequestUtils.request(username, password, url);
         Set<GitProject> projects = new HashSet<>();
+
         if (GeneralUtils.isNotEmpty(rs)) {
             JSONObject jo = new JSONObject(rs);
             JSONArray prjValues = jo.getJSONArray("values");
@@ -163,8 +165,15 @@ public class BitBucketContentService implements GitContentService {
     }
 
     @Override
-    public Image loadAvatar() {
-        String s = GeneralUtils.pathJoin(restEndPoint, Constants.USERS, username, Constants.AVATAR);
-        return new Image(s, true);
+    public String loadAvatar() {
+        int idx = restEndPoint.indexOf("rest/");
+        assert idx > -1;
+
+        return GeneralUtils.pathJoin(restEndPoint.substring(0, idx), Constants.USERS, username, Constants.AVATAR);
+    }
+
+    @Override
+    public String getDefaultProject() {
+        return "~" + username;
     }
 }

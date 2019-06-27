@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<updateDescriptor baseUrl="">
+  <entry targetMediaFileId="33" updatableVersionMin="" updatableVersionMax="" fileName="wuw_macos_3_0.dmg" newVersion="3.0" newMediaFileId="33" fileSize="6103175" bundledJre="" archive="false">
+    <comment language="zh_CN" />
+  </entry>
+</updateDescriptor>

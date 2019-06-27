@@ -145,7 +145,26 @@ public class GogsContentService implements GitContentService {
     }
 
     @Override
-    public Image loadAvatar() {
+    public String loadAvatar() {
+        String url = GeneralUtils.pathJoin(restEndPoint, Constants.USERS, username);
+        String rs = RequestUtils.request(username, password, url);
+
+        if (GeneralUtils.isNotEmpty(rs)) {
+            JSONObject jo = new JSONObject(rs);
+
+            String avatarUrl = jo.getString("avatar_url");
+            if (GeneralUtils.isNotEmpty(avatarUrl)) {
+                return avatarUrl;
+            }
+
+        }
+
         return null;
+    }
+
+
+    @Override
+    public String getDefaultProject() {
+        return username;
     }
 }

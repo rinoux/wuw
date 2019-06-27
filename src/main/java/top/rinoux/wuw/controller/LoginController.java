@@ -1,5 +1,7 @@
 package top.rinoux.wuw.controller;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import top.rinoux.code.CodeUpdateHelper;
 import top.rinoux.config.SettingsManager;
 import top.rinoux.git.ServiceManager;
@@ -18,6 +20,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import top.rinoux.git.service.GitHubContentService;
 import top.rinoux.log.LoggerFactory;
 import top.rinoux.util.GeneralUtils;
 
@@ -43,18 +46,11 @@ public class LoginController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        gitType.setValue("bitbucket");
-        gitType.getItems().setAll(ServiceManager.getTypeSupport());
-        gitType.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent actionEvent) {
-                loginBtn.setDisable(false);
-            }
-        });
         // 初始化一些默认配置
         String username = SettingsManager.getInstance().getUsername();
         String host = SettingsManager.getInstance().getEndpoint();
         String pwd = SettingsManager.getInstance().getPassword();
+        String git = SettingsManager.getInstance().getGitType();
         if (GeneralUtils.isNotEmpty(username)) {
             usernameValue.setText(username);
         }
@@ -62,24 +58,29 @@ public class LoginController implements Initializable {
             hostUrlValue.setText(host);
         }
         passwordValue.setText(pwd);
-        if (GeneralUtils.isNotEmpty(username) && GeneralUtils.isNotEmpty(host)) {
-            loadAvatar(gitType.getValue(), host, username);
-        } else {
-            loadDefaultAvatar();
-        }
 
-        usernameValue.focusedProperty().addListener((observable, oldValue, newValue) -> {
-
-            if (oldValue && !newValue) {
-                String username1 = usernameValue.getText().trim();
-                String hostUrl = hostUrlValue.getText().trim();
-                if (GeneralUtils.isNotEmpty(username1) && GeneralUtils.isNotEmpty(hostUrl)) {
-                    // 加载头像
-                    loadAvatar(gitType.getValue(), hostUrl, username1);
-                } else {
-                    loadDefaultAvatar();
+        gitType.setValue(git);
+        gitType.getItems().setAll(ServiceManager.getTypeSupport());
+        gitType.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent actionEvent) {
+                loginBtn.setDisable(false);
+            }
+        });
+        gitType.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
+                if (t1.equalsIgnoreCase("github")) {
+                    hostUrlValue.setText(GitHubContentService.GITHUB_ENDPOINT);
+                } else if (t1.equalsIgnoreCase("bitbucket")) {
+                    hostUrlValue.setText("https://cloud.finedevelop.com");
                 }
             }
+        });
+
+        loadDefaultAvatar();
+
+        usernameValue.focusedProperty().addListener((observable, oldValue, newValue) -> {
             clearStatus();
         });
 
@@ -93,20 +94,26 @@ public class LoginController implements Initializable {
             settings.setUsername(usernameValue.getText().trim());
             settings.setPassword(passwordValue.getText().trim());
             settings.setAutoLogin(autoLogin.isSelected());
+            settings.setProject("");
             validateService.restart();
+            MainController.showLoginDialog();
         });
+
+
     }
 
-    private void loadAvatar(String gitType, String host, String username) {
+    private void reloadAvatar() {
         try {
-            avatar.setImage(CodeUpdateHelper.getInstance().getAvatar(gitType, host, username));
+            String imageUrl = CodeUpdateHelper.getCurrent().getAvatar();
+            SettingsManager.getInstance().setAvatarUrl(imageUrl);
+            avatar.setImage(new Image(imageUrl, true));
         } catch (Exception e) {
-            e.printStackTrace();
+            failedStatus(e.getMessage());
         }
     }
 
     private void loadDefaultAvatar() {
-        avatar.setImage(new Image("/img/avatar.png", true));
+        avatar.setImage(new Image(SettingsManager.getInstance().getAvatarUrl(), true));
     }
 
     private Service<Boolean> validateService = new Service<Boolean>() {
@@ -119,6 +126,7 @@ public class LoginController implements Initializable {
                     try {
                         boolean pass = get();
                         if (pass) {
+                            reloadAvatar();
                             SettingsManager.getInstance().fireAccountListener();
                             successStatus("Login success!");
                             Stage window = (Stage) loginBtn.getScene().getWindow();
@@ -138,22 +146,25 @@ public class LoginController implements Initializable {
                 }
 
 
-
-
                 @Override
-                protected Boolean call()  {
+                protected Boolean call() {
                     try {
-                        return CodeUpdateHelper.newBuilder()
+                        CodeUpdateHelper helper = CodeUpdateHelper.newBuilder()
                                 .setGitType(SettingsManager.getInstance().getGitType())
                                 .setEndPoint(SettingsManager.getInstance().getEndpoint())
                                 .setUsername(SettingsManager.getInstance().getUsername())
                                 .setPassword(SettingsManager.getInstance().getPassword())
-                                .build()
-                                .validate();
+                                .build();
+                        if (helper.validate()) {
+                            CodeUpdateHelper.setCurrent(helper);
+                            return true;
+                        }
+
                     } catch (Exception e) {
                         LoggerFactory.getLogger().error(e.getMessage(), e);
-                        return false;
+
                     }
+                    return false;
                 }
             };
         }

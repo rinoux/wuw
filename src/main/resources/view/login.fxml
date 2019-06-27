@@ -22,16 +22,16 @@
                 </ImageView>
             </children>
         </HBox>
-        <TextField fx:id="hostUrlValue" promptText="Host" text="http://cloud.finedevelop.com:2015" />
-        <TextField fx:id="usernameValue" promptText="Username" />
-        <PasswordField fx:id="passwordValue" promptText="Password" />
+        <TextField fx:id="hostUrlValue" promptText="地址" text="http://cloud.finedevelop.com:2015" />
+        <TextField fx:id="usernameValue" promptText="用户名" />
+        <PasswordField fx:id="passwordValue" promptText="密码" />
         <HBox prefWidth="200.0" spacing="20.0">
             <children>
                 <ComboBox fx:id="gitType" prefHeight="27.0" prefWidth="113.0" promptText="bitbucket">
                <HBox.margin>
                   <Insets />
                </HBox.margin></ComboBox>
-                <CheckBox fx:id="autoLogin" mnemonicParsing="false" prefHeight="27.0" prefWidth="90.0" selected="true" text="Auto login">
+                <CheckBox fx:id="autoLogin" mnemonicParsing="false" prefHeight="27.0" prefWidth="90.0" selected="true" text="自动登录">
                <HBox.margin>
                   <Insets left="20.0" />
                </HBox.margin></CheckBox>
@@ -39,7 +39,7 @@
         </HBox>
         <HBox nodeOrientation="RIGHT_TO_LEFT" prefWidth="200.0" spacing="20.0">
             <children>
-                <Button fx:id="loginBtn" defaultButton="true" mnemonicParsing="false" prefHeight="27.0" prefWidth="240.0" text="Login">
+                <Button fx:id="loginBtn" defaultButton="true" mnemonicParsing="false" prefHeight="27.0" prefWidth="240.0" text="登录">
                <HBox.margin>
                   <Insets />
                </HBox.margin></Button>

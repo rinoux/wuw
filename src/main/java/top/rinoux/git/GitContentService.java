@@ -50,5 +50,10 @@ public interface GitContentService {
      *
      * @return image object
      */
-    Image loadAvatar();
+    String loadAvatar();
+
+
+
+
+    String getDefaultProject();
 }

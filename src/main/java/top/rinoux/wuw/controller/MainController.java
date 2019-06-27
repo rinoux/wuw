@@ -230,11 +230,11 @@ public class MainController implements Initializable {
         repoFilterText.textProperty().addListener(new ChangeListener<String>() {
             @Override
             public void changed(ObservableValue<? extends String> observableValue, String s, String t1) {
-                String preferRepo = repoFilterText.getText();
+                String preferRepo = repoFilterText.getText().toLowerCase();
                 repoListView.getItems().clear();
                 for (HBox item : allItems) {
                     Label repo = (Label) item.getChildren().get(1);
-                    if (repo.getText().contains(preferRepo)) {
+                    if (repo.getText().toLowerCase().contains(preferRepo)) {
                         repoListView.getItems().add(item);
                     }
                 }
@@ -371,13 +371,22 @@ public class MainController implements Initializable {
                     try {
                         String[] projects = get();
                         unbindInfo();
+                        Set<String> prjSet = new HashSet<>();
+                        Collections.addAll(prjSet, projects);
                         providedProjects.setEditable(true);
-                        providedProjects.getItems().addAll(projects);
-                        if (SettingsManager.getInstance().getProject() != null) {
+                        providedProjects.getItems().clear();
+                        providedProjects.getItems().addAll(prjSet);
+
+                        if (GeneralUtils.isNotEmpty(SettingsManager.getInstance().getProject())
+                                && prjSet.contains(SettingsManager.getInstance().getProject())) {
                             providedProjects.setValue(SettingsManager.getInstance().getProject());
+                        } else {
+                            providedProjects.setValue(CodeUpdateHelper.getCurrent().getDefaultProject());
                         }
                     } catch (InterruptedException | ExecutionException e) {
                         LoggerFactory.getLogger().error(e.getMessage(), e);
+                    } catch (Exception e) {
+                        updateMessage(e.getMessage());
                     }
 
                 }
@@ -504,7 +513,7 @@ public class MainController implements Initializable {
                         int count = 0;
                         String project = providedProjects.getValue();
                         repositoryMap.clear();
-                        for (GitRepo repo : CodeUpdateHelper.getInstance().getRepos(project)) {
+                        for (GitRepo repo : CodeUpdateHelper.getCurrent().getRepos(project)) {
                             repositoryMap.put(repo.getRepoName(), repo);
                         }
 
@@ -512,7 +521,7 @@ public class MainController implements Initializable {
                         for (Map.Entry<String, GitRepo> entry : repositoryMap.entrySet()) {
                             String name = entry.getKey();
                             GitRepo repository = entry.getValue();
-                            bran.put(name, CodeUpdateHelper.getInstance().getBranchNames(project, name));
+                            bran.put(name, CodeUpdateHelper.getCurrent().getBranchNames(project, name));
                             updateMessage("Scanning repo: " + name + " ...");
                             updateProgress(count, repositoryMap.size());
                             count++;
@@ -572,7 +581,7 @@ public class MainController implements Initializable {
                             updateMessage("Fethcing code of " + repoName + "...");
 
                             try {
-                                CodeUpdateHelper.getInstance().cloneOrPullRepo(href, branchName, new File(path));
+                                CodeUpdateHelper.getCurrent().cloneOrPullRepo(href, branchName, new File(path));
                             } catch (Exception e) {
                                 exceptions.add(e);
                             }
@@ -631,7 +640,7 @@ public class MainController implements Initializable {
                         for (int i = 0; i < fs.length; i++) {
                             final File repo = fs[i];
                             updateMessage("Update code of " + repo.getName() + "...");
-                            CodeUpdateHelper.getInstance().update(repo, branch);
+                            CodeUpdateHelper.getCurrent().update(repo, branch);
                             updateProgress(i + 1, fs.length);
                         }
                     } catch (Exception e) {
@@ -676,7 +685,7 @@ public class MainController implements Initializable {
             Parent parent = loader.load();
 
             Stage stage = new Stage();
-            stage.setTitle("Save profile");
+            stage.setTitle("新建仓库组");
             stage.setScene(new Scene(parent));
             stage.setResizable(false);
             stage.setAlwaysOnTop(true);
@@ -699,7 +708,7 @@ public class MainController implements Initializable {
     private String[] getProjects() {
         List<String> prjs = new ArrayList<>();
         try {
-            String[] projects = CodeUpdateHelper.getInstance().getProjects();
+            String[] projects = CodeUpdateHelper.getCurrent().getProjects();
             if (projects.length > 0) {
                 Collections.addAll(prjs, projects);
                 prjs.sort(new Comparator<String>() {
@@ -709,7 +718,7 @@ public class MainController implements Initializable {
                     }
                 });
 
-                prjs.add(0, "~" + SettingsManager.getInstance().getUsername());
+                prjs.add(0, CodeUpdateHelper.getCurrent().getDefaultProject());
             }
         } catch (Exception e) {
             logger.setText(e.getMessage());
